@@ -67,7 +67,7 @@ def breadth_first_search(origin_city, destination_city):
     # queue[*][2] = depth of node
     # queue[*][3] = route to get to this city from origin_city
     queue = [[origin_city, path_cost, depth]] # initialized to origin_city node (no route)
-    # SOLUCTION VARAIABLE
+    # SOLUTION VARIABLE
     solution = [float('inf'), []] # stores [path_cost, route] where route = [[step1], [step2], ..., [stepN]]
     
     # The two input cities are the SAME
