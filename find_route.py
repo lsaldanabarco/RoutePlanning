@@ -4,6 +4,7 @@ from platform import node
 import sys
 import math
 
+# Checks that the program was called properly (correct files and order of arguments)
 if len(sys.argv) != 4:
     print("usage: find_route.py input_filename.txt origin_city destination_city")
     exit(-1)
@@ -19,25 +20,31 @@ tree = {}
 input_file = None
 
 
-# Parser
+
+# PARSER: 
+# Takes in a graph (input file)
 def parser():
     input_file = open(input_filename, 'r')
     has_more_lines = True
     
     while has_more_lines == True:
         road = input_file.readline()
-        if road == "END OF INPUT\n":
+        if road == "END OF INPUT\n" or road == "END OF INPUT":
             has_more_lines = False
         else:
+            # Splits each road/edge into components
             # Format of road (input line): origin destination distance
             origin = road.split(" ")[0]
             destination = road.split(" ")[1]
-            distance = road.split(" ")[2][:road.split(" ")[2].index("\n")] # Removes "\n" at the end
-            tree_generator(origin, destination, distance)
+            if "\n" in road:
+                distance = road.split(" ")[2][:road.split(" ")[2].index("\n")] # Removes "\n" at the end
+            else:
+                distance = road.split(" ")[2]
+            tree_generator(origin, destination, distance) # Passes the processed edge so that it can be added to the tree
 
 
 
-# Tree Generator: adds a road to the tree
+# TREE GENERATOR: adds road to the tree dictionary
 def tree_generator(origin, destination, distance):
     # Include direction: origin -> destination
     if origin in tree:
@@ -53,93 +60,129 @@ def tree_generator(origin, destination, distance):
 
 
 
-def breadth_first_search(origin_city, destination_city):
-    # CURRENT CITY AND CHILDREN VARIABLES
-    current_city = origin_city
-    children = tree[origin_city].copy()
-    # QUEUE VARIABLES
-    path_cost = 0
-    depth = 0
-    # For reference: 
-    # queue[*] is a node where * is an index
-    # queue[*][0] = city name
-    # queue[*][1] = path_cost to get to this city from origin_city
-    # queue[*][2] = depth of node
-    # queue[*][3] = route to get to this city from origin_city
-    queue = [[origin_city, path_cost, depth]] # initialized to origin_city node (no route)
-    # SOLUTION VARIABLE
-    solution = [float('inf'), []] # stores [path_cost, route] where route = [[step1], [step2], ..., [stepN]]
+# NODE CLASS:
+# Objects of this class are the data structures that represent a tree node
+# A node keeps track of pointers to its parent and children nodes
+class Node:
+    def __init__(self, name, parent, distance_from_parent, depth):
+        self.name = name
+        self.parent = parent
+        self.distance_from_parent = distance_from_parent
+        self.depth = depth
+        self.total_distance = 0
+        self.children = []
+
+    def update_total_distance(self, distance):
+        self.total_distance = distance
+
+    def add_child(self, Node):
+        self.children.append(Node)
+
+
+
+# HEURISTIC FUNCTION:
+# Gets called to determine how many cities the algorithm should explore 
+# before determining that there is no solution
+def heuristic_function():
+    return math.ceil(152.955 * math.log(0.00131804 * len(tree.keys()) + 1.87754) - 91.0284)
+
+
+
+# UNIFORM COST SEARCH ALGORITHM:
+# ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+def uniform_cost_search():
+    current_node = Node(origin_city, None, 0, 0) # current node
+    children = tree[current_node.name].copy() # children of current node (taken from tree dictionary)
+    ancestors = [] # names of current node's ancestors
+
+    queue = [] # Queue
+    queue.append(current_node)
+
+    # Flow control variables
+    minimum_distance = float('inf') # current smallest distance found between origin and destination
+    solution = None # current destination node with smallest distance
+    stop = False # True if heuristic function says algorithm should stop
     
-    # The two input cities are the SAME
-    if origin_city == destination_city:
-        solution = [0, [[origin_city + " to " + destination_city, 0]]]
-        return solution
-    # The two input cities are DIFFERENT
-    heuristic_result = heuristic()
-    print(tree)
-    while queue[0][2] <= 9: # While depth of current city is less than heuristic result
-        if len(children) != 0: # If current_city has children
-            # Add children to queue
-            for node in children:
-                queue.append(node.copy())
-                queue[-1][1] = path_cost + queue[-1][1]  # child's TOTAL path cost = (parent's path_cost) + (distance between parent and child)
-                queue[-1].append(queue[0][2] + 1) # child's depth = parent's depth + 1
-                if len(queue[0]) != 4: # If current_city is origin_city (i.e. does not have a fourth element/route)
-                    queue[-1].append([[current_city + " to " + queue[-1][0], queue[-1][1]]]) # append first step in route
-                else:
-                    queue[-1].append([])
-                    for step in queue[0][3]: # append all previous steps in route
-                        queue[-1][3].append(step)
-                    queue[-1][3].append([current_city + " to " + queue[-1][0], queue[-1][1] - queue[0][1]]) # append new step in route
-            # Update variables for next element in the queue
-            queue.pop(0)
-            current_city = queue[0][0]
-            children = tree[queue[0][0]].copy()
-            path_cost = queue[0][1]
-            # If the new queue[0] is the destination city, update solution
-            if(current_city == destination_city):
-                print(queue[0])
-                if path_cost < solution[0]:
-                    print("\n")
-                    solution[0] = path_cost
-                    solution[1] = queue[0][3]
+    
+    if origin_city == destination_city: # default: is origin the same as destination?
+        solution = "equal"
+        stop = True
+
+    # Executes while heuristic function says to keep exploring cities
+    while len(queue) != 0 and stop == False:
+        
+        # Get current_node's ancestors
+        ancestors.clear()
+        current_ancestor = current_node.parent
+        while current_ancestor != None:
+            ancestors.append(current_ancestor.name)
+            current_ancestor = current_ancestor.parent
+
+        # Stop if we have explored the number of cities that the heuristic allows
+        if len(ancestors) >= heuristic_function():
+            stop = True
+
+        # If we have reached the destination, check if this path was better than the one previously found
+        if (current_node.name == destination_city) and (current_node.total_distance < minimum_distance):
+            minimum_distance = current_node.total_distance # If it is better -> update
+            solution = current_node
+
+        # Create child nodes avoiding repeats
+        for child in children:
+            if child[0] not in ancestors:
+                new_child = Node(child[0], current_node, child[1], current_node.depth + 1)
+                new_child.update_total_distance(current_node.total_distance + child[1])
+                current_node.add_child(new_child)
+
+        # Push children onto the queue in ascending order
+        # This is where the uniform cost search part comes in (explore those with smallest cost first)
+        child_list_copy = current_node.children.copy()
+        while len(child_list_copy) != 0:
+            min_node = min(child_list_copy, key=lambda child: child.total_distance)
+            queue.append(min_node)
+            child_list_copy.remove(min_node)
+
+        # Update variables for next element in the queue
+        queue.pop(0)
+        if len(queue) != 0:
+            current_node = queue[0]
+        children = tree[current_node.name].copy()
+
     return solution
+# ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 
 
 
-# Heuristic function to put a limit on the depth of the tree
-def heuristic():
-    #7.785112595\cdot\log\left(x\right)-4.29362608478
-    count = 0
-    for key in tree:
-        count = count + len(tree[key])
-    average = count / len(tree.keys()) # Average number of children per parent
-    result = math.ceil(len(tree.keys()) / average) # Heuristic
-    print(result)
-    return result
-
-
-
-# Prints Output (distance and route between origin_city and destination_city)
+# PRINT ROUTE:
+# Prints the total distance and route between origin_city and destination_city
 def print_route(solution):
-    if solution[0] == float('inf'): # No route exists between the two input cities
+    if solution == None: # No route exists between the two input cities
         print("distance: infinity")
         print("route:")
         print("none")
-    else:
-        print("distance: " + str(solution[0]) + " km")
+    elif solution == "equal": # origin_city and destination_city are the same
+        print("distance: 0 km")
         print("route:")
-        for step in solution[1]:
-            #print(solution[1])
-            #print(step)
-            #print(step[0])
-            #print(step[1])
-            print(step[0] + ", " + str(step[1]) + " km")
+        print(origin_city + " to " + destination_city + ", 0 km")
+    else: # At least one route exists
+        print("distance: " + str(solution.total_distance) + " km")
+        print("route:")
+        node = solution
+        # The code below back-tracks through the nodes to get steps of route
+        road_list = []
+        while node.name != origin_city:
+            road_list.insert(0, node.parent.name + " to " + node.name + ", " + str(node.distance_from_parent) + " km")
+            node = node.parent
+        # Prints route in order
+        for step in road_list:
+            print(step)
 
 
 
-# Code Runner
+##########################################
+# RUNNER / FUNCTION CALLS:
 parser()
-solution = breadth_first_search(origin_city, destination_city)
+solution = uniform_cost_search()
 print_route(solution)
 # The End :)
+##########################################
