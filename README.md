@@ -14,7 +14,7 @@ I used a tree search framework, meaning that the algorithm uses a single queue (
   - Note: spain.txt is an example file that I created. Anyone can create a new file for another country or set of countries and use that instead. Another example file in this repository is germany_england.txt
 - spain.txt describes the road system in Spain which can be visualized in the figure below. Each line in spain.txt represents the road connecting two cities.
   - For example, the line ***Burgos Segovia 197*** indicates that there exists a road that is 197 km long and connects the cities Burgos and Segovia.
-- tests_spain.txt contains some examples that can be used to test the functionality of the code. tests_germany_london.txt is the equivalent test file for the Germany/England map
+- tests_spain.txt contains some examples that can be used to test the functionality of the code. tests_germany_england.txt is the equivalent test file for the Germany/England map
 
 ![image](https://user-images.githubusercontent.com/70923397/169309232-22188559-1777-49c3-bb55-7ea3089a81ee.png)
 
