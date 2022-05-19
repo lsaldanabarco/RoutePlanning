@@ -1,0 +1,64 @@
+TEST CASES FOR NEW MAP:
+
+
+--------------------------------- TEST 1 -------------------------------------
+-- command -------------------------------------------------------------------
+python find_route.py input3.txt Lugo Valencia
+-- output --------------------------------------------------------------------
+distance: 1010 km
+route:
+Lugo to Leon, 236 km
+Leon to Valladolid, 134 km
+Valladolid to Segovia, 111 km
+Segovia to Madrid, 87 km
+Madrid to Albacete, 251 km
+Albacete to Valencia, 191 km
+
+
+--------------------------------- TEST 2 -------------------------------------
+-- command -------------------------------------------------------------------
+python find_route.py input3.txt Caceres Girona
+-- output --------------------------------------------------------------------
+distance: 1085 km
+route:
+Caceres to Madrid, 297 km
+Madrid to Guadalajara, 67 km
+Guadalajara to Zaragoza, 325 km
+Zaragoza to Lleida, 140 km
+Lleida to Girona, 256 km
+
+
+--------------------------------- TEST 3 -------------------------------------
+-- command -------------------------------------------------------------------
+python find_route.py input3.txt Andorra Cadiz
+-- output --------------------------------------------------------------------
+distance: 1316 km
+route:
+Andorra to Lleida, 152 km
+Lleida to Tarragona, 91 km
+Tarragona to Castellon, 186 km
+Castellon to Valencia, 65 km
+Valencia to Albacete, 191 km
+Albacete to Jaen, 264 km
+Jaen to Cordoba, 104 km
+Cordoba to Sevilla, 138 km
+Sevilla to Cadiz, 125 km
+
+
+--------------------------------- TEST 4 -------------------------------------
+-- command -------------------------------------------------------------------
+python find_route.py input3.txt Menorca Ibiza
+-- output --------------------------------------------------------------------
+distance: 363 km
+route:
+Menorca to Mallorca, 176 km
+Mallorca to Ibiza, 187 km
+
+
+--------------------------------- TEST 5 -------------------------------------
+-- command -------------------------------------------------------------------
+python find_route.py input3.txt Madrid Tenerife
+-- output --------------------------------------------------------------------
+distance: infinity
+route:
+none
