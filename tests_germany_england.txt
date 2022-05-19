@@ -1,0 +1,55 @@
+TEST CASES FOR PROVIDED MAP:
+
+
+--------------------------------- TEST 1 -------------------------------------
+-- command -------------------------------------------------------------------
+python find_route.py input1.txt Luebeck Munich
+-- output --------------------------------------------------------------------
+distance: 923 km
+route:
+Luebeck to Hamburg, 63 km    
+Hamburg to Hannover, 153 km  
+Hannover to Magdeburg, 148 km
+Magdeburg to Leipzig, 125 km 
+Leipzig to Nuremberg, 263 km 
+Nuremberg to Munich, 171 km
+
+
+--------------------------------- TEST 2 -------------------------------------
+-- command -------------------------------------------------------------------
+python find_route.py input1.txt Duesseldorf Magdeburg
+-- output --------------------------------------------------------------------
+distance: 583 km
+route:
+Duesseldorf to Dortmund, 69 km
+Dortmund to Bremen, 234 km
+Bremen to Hannover, 132 km
+Hannover to Magdeburg, 148 km
+
+
+--------------------------------- TEST 3 -------------------------------------
+-- command -------------------------------------------------------------------
+python find_route.py input1.txt Manchester London
+-- output --------------------------------------------------------------------
+distance: 201 km
+route:
+Manchester to Birmingham, 84 km
+Birmingham to London, 117 km
+
+
+--------------------------------- TEST 4 -------------------------------------
+-- command -------------------------------------------------------------------
+python find_route.py input1.txt Birmingham Dresden
+-- output --------------------------------------------------------------------
+distance: infinity
+route:
+none
+
+
+--------------------------------- TEST 5 -------------------------------------
+-- command -------------------------------------------------------------------
+python find_route.py input1.txt Stuttgart Stuttgart
+-- output --------------------------------------------------------------------
+distance: 0 km
+route:
+Stuttgart to Stuttgart, 0 km
